@@ -9,7 +9,6 @@
       ,"build": "echo 'No build step necesario'"
   },
   "keywords": [],
-  "type": "module",
   "author": "",
   "license": "ISC",
   "description": "",
