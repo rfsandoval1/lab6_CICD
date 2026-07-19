@@ -24,9 +24,9 @@ jobs:
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     env:
-      
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
     steps:
       - name: clonar repositorio
         uses: actions/checkout@v3
@@ -38,9 +38,16 @@ jobs:
         run: npm install
       - name: instalar Vercel CLI
         run: npm install --global vercel@latest
+      - name: validar token de Vercel
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "El secreto VERCEL_TOKEN no está definido en GitHub." >&2
+            exit 1
+          fi
+          vercel whoami --token "$VERCEL_TOKEN"
       - name: Obtener configuración de Vercel
-        run: vercel pull --yes --environment=production --token ${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
       - name: Construir el proyecto
-        run: vercel build --prod --token ${{ secrets.VERCEL_TOKEN }}
+        run: vercel build --prod --token "$VERCEL_TOKEN"
       - name: desplegar en Vercel
-        run: vercel deploy --prebuilt --prod --token ${{ secrets.VERCEL_TOKEN }} --confirm
+        run: vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN" --confirm
